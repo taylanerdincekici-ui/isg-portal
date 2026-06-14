@@ -883,11 +883,11 @@ footer {
       </div>
       <div class="hero-stats">
         <div class="hero-stat">
-          <div class="hero-stat-val">34</div>
+          <div class="hero-stat-val" id="statVal1">—</div>
           <div class="hero-stat-lbl">Yönetmelik</div>
         </div>
         <div class="hero-stat">
-          <div class="hero-stat-val">847</div>
+          <div class="hero-stat-val" id="statVal2">—</div>
           <div class="hero-stat-lbl">Mevzuat Maddesi</div>
         </div>
       </div>
@@ -967,52 +967,240 @@ footer {
 </div>
 
 <script>
-// Date
+// ── TARİH ──
 (function(){
   const d = new Date();
-  const opts = { year:'numeric', month:'long', day:'numeric', weekday:'long' };
   document.getElementById('currentDate').textContent =
-    d.toLocaleDateString('tr-TR', opts);
+    d.toLocaleDateString('tr-TR', { year:'numeric', month:'long', day:'numeric', weekday:'long' });
 })();
 
-// --- FILTER ---
-const allCards = () => [...document.querySelectorAll('.news-card, .card-featured')];
+// ── YARDIMCI FONKSİYONLAR ──
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzA3uzxlB3cwmufBmDq6zabBDCIPpMeQ7aLAl-C9FvYOshBWOLe63NXE6X2RIjn-ND1/exec';
 
-function updateCount() {
-  const vis = allCards().filter(c => c.style.display !== 'none').length;
-  document.getElementById('resultCount').textContent = vis + ' haber';
-  document.getElementById('noResults').style.display = vis === 0 ? 'block' : 'none';
+const CAT_CONFIG = {
+  'mevzuat':    { cls: 'tag-regulation', label: 'Mevzuat',    tags: 'mevzuat' },
+  'yönetmelik': { cls: 'tag-regulation', label: 'Yönetmelik', tags: 'yonetmelik mevzuat' },
+  'yonetmelik': { cls: 'tag-regulation', label: 'Yönetmelik', tags: 'yonetmelik mevzuat' },
+  'haber':      { cls: 'tag-news',       label: 'Haber',      tags: 'haber' },
+  'güncel':     { cls: 'tag-news',       label: 'Haber',      tags: 'haber' },
+  'guncel':     { cls: 'tag-news',       label: 'Haber',      tags: 'haber' },
+  'uyarı':      { cls: 'tag-alert',      label: 'Uyarı',      tags: 'haber' },
+  'uyari':      { cls: 'tag-alert',      label: 'Uyarı',      tags: 'haber' },
+  'eğitim':     { cls: 'tag-education',  label: 'Eğitim',     tags: 'egitim' },
+  'egitim':     { cls: 'tag-education',  label: 'Eğitim',     tags: 'egitim' },
+  'kkd':        { cls: 'tag-kkd',        label: 'KKD',        tags: 'kkd' },
+  'risk':       { cls: 'tag-news',       label: 'Risk',       tags: 'risk' },
+};
+
+function normTR(s) {
+  return (s || '').toLowerCase()
+    .replace(/ı/g,'i').replace(/İ/g,'i').replace(/ğ/g,'g').replace(/Ğ/g,'g')
+    .replace(/ü/g,'u').replace(/Ü/g,'u').replace(/ş/g,'s').replace(/Ş/g,'s')
+    .replace(/ö/g,'o').replace(/Ö/g,'o').replace(/ç/g,'c').replace(/Ç/g,'c').trim();
 }
 
-function filterCards(tag) {
-  allCards().forEach(c => {
-    const tags = c.dataset.tags || '';
-    c.style.display = (tag === 'tumu' || tags.includes(tag)) ? '' : 'none';
-  });
-  updateCount();
+function getCat(kat) {
+  const k = normTR(kat);
+  return CAT_CONFIG[k] || CAT_CONFIG[(kat || '').toLowerCase().trim()]
+    || { cls: 'tag-news', label: kat || 'Haber', tags: 'haber' };
+}
+
+function getField(row, ...keys) {
+  for (const key of keys) {
+    if (row[key] != null && String(row[key]).trim() !== '') return String(row[key]);
+    const nk = normTR(key);
+    for (const [rk, rv] of Object.entries(row)) {
+      if (normTR(rk) === nk && rv != null && String(rv).trim() !== '') return String(rv);
+    }
+  }
+  return '';
+}
+
+function normalizeData(raw) {
+  if (Array.isArray(raw)) {
+    if (raw.length > 0 && Array.isArray(raw[0])) {
+      const hdrs = raw[0];
+      return raw.slice(1).map(row => Object.fromEntries(hdrs.map((h, i) => [h, row[i] ?? ''])));
+    }
+    return raw;
+  }
+  return raw?.data || raw?.values || raw?.rows || [];
+}
+
+function escHtml(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── GLOBAL DURUM ──
+let allRows      = [];
+let currentFilter = 'tumu';
+let currentSearch = '';
+
+// ── FİLTRELEME (veriyi yeniden render eder, DOM hide/show değil) ──
+function matchesFilter(row, tag) {
+  if (tag === 'tumu') return true;
+  return getCat(getField(row, 'kategori', 'Kategori', 'category')).tags.split(' ').includes(tag);
+}
+
+function matchesSearch(row, q) {
+  if (!q) return true;
+  return Object.values(row).some(v => String(v).toLowerCase().includes(q));
+}
+
+function applyFilters() {
+  renderCards(allRows.filter(row =>
+    matchesFilter(row, currentFilter) && matchesSearch(row, currentSearch)
+  ));
 }
 
 function filterByNav(el, tag) {
   document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
   el.classList.add('active');
-  filterCards(tag);
+  currentFilter = tag;
+  applyFilters();
 }
 
 function filterBySide(el, tag) {
   document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
   el.classList.add('active');
-  filterCards(tag);
+  currentFilter = tag;
+  applyFilters();
 }
 
 function searchCards(q) {
-  q = q.trim().toLowerCase();
-  allCards().forEach(c => {
-    c.style.display = (!q || c.textContent.toLowerCase().includes(q)) ? '' : 'none';
-  });
-  updateCount();
+  currentSearch = q.trim().toLowerCase();
+  applyFilters();
 }
 
-// --- STATIC MODALS (Risk / KKD / Acil) ---
+// ── RENDER: veritabanı satırlarından kart oluştur ──
+function makeSkelCard(featured) {
+  const el = document.createElement('div');
+  el.className = 'skel-block';
+  el.style.pointerEvents = 'none';
+  if (featured) {
+    el.style.padding = '20px 22px';
+    el.style.marginBottom = '14px';
+    el.style.borderLeft = '4px solid var(--border-mid)';
+  }
+  el.innerHTML = `
+    <div class="skel-line" style="width:30%;height:12px;"></div>
+    <div class="skel-line" style="width:75%;height:14px;margin-top:2px;"></div>
+    <div class="skel-line" style="width:100%;"></div>
+    <div class="skel-line" style="width:60%;"></div>`;
+  return el;
+}
+
+function makeFeaturedEl(row) {
+  const cat    = getCat(getField(row, 'kategori', 'Kategori', 'category'));
+  const title  = getField(row, 'baslik', 'başlık', 'Başlık', 'Baslik', 'title');
+  const date   = getField(row, 'tarih', 'Tarih', 'date');
+  const ozet   = getField(row, 'ozet', 'özet', 'Özet', 'Ozet', 'summary', 'excerpt');
+  const kaynak = getField(row, 'kaynak', 'Kaynak', 'source');
+  const icerik = getField(row, 'icerik', 'içerik', 'İçerik', 'Icerik', 'content', 'detay', 'Detay');
+  const el = document.createElement('div');
+  el.className = 'card-featured';
+  el.dataset.tags   = cat.tags + ' haber';
+  el.dataset.icerik = icerik;
+  el.onclick = () => openCardModal(el);
+  el.innerHTML = `
+    <div class="card-featured-icon">📋</div>
+    <div class="card-featured-body">
+      <div class="card-meta">
+        <span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span>
+        <span class="card-date">${escHtml(date)}</span>
+      </div>
+      <div class="card-title">${escHtml(title)}</div>
+      <div class="card-excerpt">${escHtml(ozet)}</div>
+      <div class="card-footer">
+        <div class="card-source">${kaynak ? `<strong>Kaynak:</strong> ${escHtml(kaynak)}` : ''}</div>
+        <div class="card-read-more">Devamını Oku →</div>
+      </div>
+    </div>`;
+  return el;
+}
+
+function makeCardEl(row) {
+  const cat    = getCat(getField(row, 'kategori', 'Kategori', 'category'));
+  const title  = getField(row, 'baslik', 'başlık', 'Başlık', 'Baslik', 'title');
+  const date   = getField(row, 'tarih', 'Tarih', 'date');
+  const ozet   = getField(row, 'ozet', 'özet', 'Özet', 'Ozet', 'summary', 'excerpt');
+  const kaynak = getField(row, 'kaynak', 'Kaynak', 'source');
+  const icerik = getField(row, 'icerik', 'içerik', 'İçerik', 'Icerik', 'content', 'detay', 'Detay');
+  const el = document.createElement('div');
+  el.className = 'news-card';
+  el.dataset.tags   = cat.tags + ' haber';
+  el.dataset.icerik = icerik;
+  el.onclick = () => openCardModal(el);
+  el.innerHTML = `
+    <div class="card-meta">
+      <span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span>
+      <span class="card-date">${escHtml(date)}</span>
+    </div>
+    <div class="card-title">${escHtml(title)}</div>
+    <div class="card-excerpt">${escHtml(ozet)}</div>
+    <div class="card-footer">
+      <div class="card-source">${kaynak ? `<strong>Kaynak:</strong> ${escHtml(kaynak)}` : ''}</div>
+      <div class="card-read-more">Oku →</div>
+    </div>`;
+  return el;
+}
+
+function renderCards(rows) {
+  const featuredWrap = document.getElementById('featuredWrap');
+  const newsGrid     = document.getElementById('newsGrid');
+  const statusDiv    = document.getElementById('newsStatus');
+  const countEl      = document.getElementById('resultCount');
+  const noResults    = document.getElementById('noResults');
+
+  featuredWrap.innerHTML = '';
+  newsGrid.innerHTML = '';
+  noResults.style.display = 'none';
+
+  if (!rows.length) {
+    statusDiv.innerHTML = '<div style="font-size:1.5rem;margin-bottom:8px;">⌕</div>Bu kritere uygun içerik bulunamadı.';
+    statusDiv.style.display = 'block';
+    countEl.textContent = '0 haber';
+    return;
+  }
+
+  statusDiv.style.display = 'none';
+  featuredWrap.appendChild(makeFeaturedEl(rows[0]));
+  rows.slice(1).forEach(row => newsGrid.appendChild(makeCardEl(row)));
+  countEl.textContent = rows.length + ' haber';
+}
+
+// ── DİNAMİK SAYAÇLAR ──
+function updateHeroStats(rows) {
+  const yonetmelikCount = rows.filter(row =>
+    getCat(getField(row, 'kategori', 'Kategori', 'category')).tags.includes('yonetmelik')
+  ).length;
+  const mevzuatCount = rows.filter(row =>
+    getCat(getField(row, 'kategori', 'Kategori', 'category')).tags.includes('mevzuat')
+  ).length;
+  const el1 = document.getElementById('statVal1');
+  const el2 = document.getElementById('statVal2');
+  if (el1) el1.textContent = yonetmelikCount;
+  if (el2) el2.textContent = mevzuatCount;
+}
+
+function updateSidebarCounts(rows) {
+  const counts = { mevzuat: 0, yonetmelik: 0, risk: 0, kkd: 0, egitim: 0 };
+  rows.forEach(row => {
+    getCat(getField(row, 'kategori', 'Kategori', 'category'))
+      .tags.split(' ').forEach(t => { if (t in counts) counts[t]++; });
+  });
+  document.querySelectorAll('.sidebar-item').forEach(item => {
+    const m = (item.getAttribute('onclick') || '').match(/filterBySide\(this,'(\w+)'\)/);
+    if (!m) return;
+    const countEl = item.querySelector('.sidebar-count');
+    if (!countEl) return;
+    const tag = m[1];
+    if (tag === 'haber' || tag === 'tumu') countEl.textContent = rows.length;
+    else if (tag in counts) countEl.textContent = counts[tag];
+  });
+}
+
+// ── STATIK MODALLER (Risk / KKD / Acil) ──
 const quickData = {
   risk: {
     tagClass: 'tag-regulation', tag: 'Risk Analizi',
@@ -1059,31 +1247,31 @@ const quickData = {
 function openModal(key) {
   const m = quickData[key];
   if (!m) return;
-  document.getElementById('modalTag').className = 'card-tag ' + m.tagClass;
+  document.getElementById('modalTag').className   = 'card-tag ' + m.tagClass;
   document.getElementById('modalTag').textContent = m.tag;
   document.getElementById('modalTitle').textContent = m.title;
-  document.getElementById('modalDate').textContent = m.date;
-  document.getElementById('modalBody').innerHTML = m.body;
+  document.getElementById('modalDate').textContent  = m.date;
+  document.getElementById('modalBody').innerHTML  = m.body;
   document.getElementById('modalOverlay').classList.add('open');
 }
 
-function escHtml(s) {
-  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
+// ── KART MODALI (İçerik sütunundan tam metin) ──
 function openCardModal(card) {
   const tagEl   = card.querySelector('.card-tag');
   const title   = card.querySelector('.card-title')?.textContent  || '';
   const date    = card.querySelector('.card-date')?.textContent   || '';
   const excerpt = card.querySelector('.card-excerpt')?.textContent || '';
   const icerik  = card.dataset.icerik || '';
+
   document.getElementById('modalTag').className   = 'card-tag ' + (tagEl ? tagEl.className.split(' ').slice(1).join(' ') : '');
   document.getElementById('modalTag').textContent = tagEl ? tagEl.textContent : '';
   document.getElementById('modalTitle').textContent = title;
   document.getElementById('modalDate').textContent  = date;
+
   document.getElementById('modalBody').innerHTML = icerik
-    ? '<p>' + icerik.split('\n').filter(Boolean).map(escHtml).join('</p><p>') + '</p>'
-    : '<p>' + escHtml(excerpt) + '</p>';
+    ? icerik.split('\n').filter(Boolean).map(line => `<p>${escHtml(line)}</p>`).join('')
+    : `<p>${escHtml(excerpt)}</p>`;
+
   document.getElementById('modalOverlay').classList.add('open');
 }
 
@@ -1096,157 +1284,14 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') document.getElementById('modalOverlay').classList.remove('open');
 });
 
-// --- GOOGLE SHEETS FETCH ---
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzA3uzxlB3cwmufBmDq6zabBDCIPpMeQ7aLAl-C9FvYOshBWOLe63NXE6X2RIjn-ND1/exec';
-
-const CAT_CONFIG = {
-  'mevzuat':    { cls: 'tag-regulation', label: 'Mevzuat',    tags: 'mevzuat' },
-  'yönetmelik': { cls: 'tag-regulation', label: 'Yönetmelik', tags: 'yonetmelik mevzuat' },
-  'yonetmelik': { cls: 'tag-regulation', label: 'Yönetmelik', tags: 'yonetmelik mevzuat' },
-  'haber':      { cls: 'tag-news',       label: 'Haber',      tags: 'haber' },
-  'güncel':     { cls: 'tag-news',       label: 'Haber',      tags: 'haber' },
-  'guncel':     { cls: 'tag-news',       label: 'Haber',      tags: 'haber' },
-  'uyarı':      { cls: 'tag-alert',      label: 'Uyarı',      tags: 'haber' },
-  'uyari':      { cls: 'tag-alert',      label: 'Uyarı',      tags: 'haber' },
-  'eğitim':     { cls: 'tag-education',  label: 'Eğitim',     tags: 'egitim' },
-  'egitim':     { cls: 'tag-education',  label: 'Eğitim',     tags: 'egitim' },
-  'kkd':        { cls: 'tag-kkd',        label: 'KKD',        tags: 'kkd' },
-  'risk':       { cls: 'tag-news',       label: 'Risk',       tags: 'risk' },
-};
-
-function normTR(s) {
-  return (s || '').toLowerCase()
-    .replace(/ı/g,'i').replace(/İ/g,'i')
-    .replace(/ğ/g,'g').replace(/Ğ/g,'g')
-    .replace(/ü/g,'u').replace(/Ü/g,'u')
-    .replace(/ş/g,'s').replace(/Ş/g,'s')
-    .replace(/ö/g,'o').replace(/Ö/g,'o')
-    .replace(/ç/g,'c').replace(/Ç/g,'c').trim();
-}
-
-function getCat(kat) {
-  const k = normTR(kat);
-  return CAT_CONFIG[k] || CAT_CONFIG[(kat || '').toLowerCase().trim()]
-    || { cls: 'tag-news', label: kat || 'Haber', tags: 'haber' };
-}
-
-function getField(row, ...keys) {
-  for (const key of keys) {
-    if (row[key] != null && String(row[key]).trim() !== '') return String(row[key]);
-    const nk = normTR(key);
-    for (const [rk, rv] of Object.entries(row)) {
-      if (normTR(rk) === nk && rv != null && String(rv).trim() !== '') return String(rv);
-    }
-  }
-  return '';
-}
-
-function normalizeData(raw) {
-  if (Array.isArray(raw)) {
-    if (raw.length > 0 && Array.isArray(raw[0])) {
-      const hdrs = raw[0];
-      return raw.slice(1).map(row => Object.fromEntries(hdrs.map((h, i) => [h, row[i] ?? ''])));
-    }
-    return raw;
-  }
-  return raw?.data || raw?.values || raw?.rows || [];
-}
-
-function makeSkelCard(featured) {
-  const el = document.createElement('div');
-  el.className = 'skel-block';
-  el.style.pointerEvents = 'none';
-  if (featured) {
-    el.style.padding = '20px 22px';
-    el.style.marginBottom = '14px';
-    el.style.borderLeft = '4px solid var(--border-mid)';
-  }
-  el.innerHTML = `
-    <div class="skel-line" style="width:30%;height:12px;"></div>
-    <div class="skel-line" style="width:75%;height:14px;margin-top:2px;"></div>
-    <div class="skel-line" style="width:100%;"></div>
-    <div class="skel-line" style="width:60%;"></div>`;
-  return el;
-}
-
-function makeFeaturedEl(row) {
-  const cat    = getCat(getField(row, 'kategori', 'Kategori', 'category'));
-  const title  = getField(row, 'baslik', 'başlık', 'Başlık', 'Baslik', 'title');
-  const date   = getField(row, 'tarih', 'Tarih', 'date');
-  const ozet   = getField(row, 'ozet', 'özet', 'Özet', 'Ozet', 'summary', 'excerpt');
-  const kaynak = getField(row, 'kaynak', 'Kaynak', 'source');
-  const icerik = getField(row, 'icerik', 'içerik', 'İçerik', 'Icerik', 'content', 'detay', 'Detay');
-  const el = document.createElement('div');
-  el.className = 'card-featured';
-  el.dataset.tags = cat.tags + ' haber';
-  el.dataset.icerik = icerik;
-  el.onclick = () => openCardModal(el);
-  el.innerHTML = `
-    <div class="card-featured-icon">📋</div>
-    <div class="card-featured-body">
-      <div class="card-meta">
-        <span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span>
-        <span class="card-date">${escHtml(date)}</span>
-      </div>
-      <div class="card-title">${escHtml(title)}</div>
-      <div class="card-excerpt">${escHtml(ozet)}</div>
-      <div class="card-footer">
-        <div class="card-source">${kaynak ? `<strong>Kaynak:</strong> ${escHtml(kaynak)}` : ''}</div>
-        <div class="card-read-more">Devamını Oku →</div>
-      </div>
-    </div>`;
-  return el;
-}
-
-function makeCardEl(row) {
-  const cat    = getCat(getField(row, 'kategori', 'Kategori', 'category'));
-  const title  = getField(row, 'baslik', 'başlık', 'Başlık', 'Baslik', 'title');
-  const date   = getField(row, 'tarih', 'Tarih', 'date');
-  const ozet   = getField(row, 'ozet', 'özet', 'Özet', 'Ozet', 'summary', 'excerpt');
-  const kaynak = getField(row, 'kaynak', 'Kaynak', 'source');
-  const icerik = getField(row, 'icerik', 'içerik', 'İçerik', 'Icerik', 'content', 'detay', 'Detay');
-  const el = document.createElement('div');
-  el.className = 'news-card';
-  el.dataset.tags = cat.tags + ' haber';
-  el.dataset.icerik = icerik;
-  el.onclick = () => openCardModal(el);
-  el.innerHTML = `
-    <div class="card-meta">
-      <span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span>
-      <span class="card-date">${escHtml(date)}</span>
-    </div>
-    <div class="card-title">${escHtml(title)}</div>
-    <div class="card-excerpt">${escHtml(ozet)}</div>
-    <div class="card-footer">
-      <div class="card-source">${kaynak ? `<strong>Kaynak:</strong> ${escHtml(kaynak)}` : ''}</div>
-      <div class="card-read-more">Oku →</div>
-    </div>`;
-  return el;
-}
-
-function updateSidebarCounts(rows) {
-  const counts = { mevzuat: 0, yonetmelik: 0, risk: 0, kkd: 0, egitim: 0 };
-  rows.forEach(row => {
-    const cat = getCat(getField(row, 'kategori', 'Kategori', 'category'));
-    cat.tags.split(' ').forEach(t => { if (t in counts) counts[t]++; });
-  });
-  document.querySelectorAll('.sidebar-item').forEach(item => {
-    const m = (item.getAttribute('onclick') || '').match(/filterBySide\(this,'(\w+)'\)/);
-    if (!m) return;
-    const countEl = item.querySelector('.sidebar-count');
-    if (!countEl) return;
-    const tag = m[1];
-    if (tag === 'haber' || tag === 'tumu') countEl.textContent = rows.length;
-    else if (tag in counts) countEl.textContent = counts[tag];
-  });
-}
-
+// ── VERİ ÇEKME ──
 async function fetchNews() {
   const featuredWrap = document.getElementById('featuredWrap');
   const newsGrid     = document.getElementById('newsGrid');
   const statusDiv    = document.getElementById('newsStatus');
   const countEl      = document.getElementById('resultCount');
 
+  // Skeleton göster
   featuredWrap.innerHTML = '';
   newsGrid.innerHTML = '';
   featuredWrap.appendChild(makeSkelCard(true));
@@ -1257,22 +1302,14 @@ async function fetchNews() {
   try {
     const res = await fetch(SCRIPT_URL);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const rows = normalizeData(await res.json());
+    allRows = normalizeData(await res.json());
 
-    featuredWrap.innerHTML = '';
-    newsGrid.innerHTML = '';
-
-    if (!rows.length) {
-      statusDiv.innerHTML = '<div style="font-size:1.5rem;margin-bottom:8px;">📭</div>Henüz haber eklenmemiş.';
-      statusDiv.style.display = 'block';
-      countEl.textContent = '0 haber';
-      return;
-    }
-
-    featuredWrap.appendChild(makeFeaturedEl(rows[0]));
-    rows.slice(1).forEach(row => newsGrid.appendChild(makeCardEl(row)));
-    updateSidebarCounts(rows);
-    updateCount();
+    // 1) Hero sayaçlarını güncelle
+    updateHeroStats(allRows);
+    // 2) Sidebar sayaçlarını güncelle
+    updateSidebarCounts(allRows);
+    // 3) Kartları render et
+    renderCards(allRows);
   } catch (err) {
     featuredWrap.innerHTML = '';
     newsGrid.innerHTML = '';
