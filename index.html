@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Erdinç EKİCİ | İş Güvenliği Uzmanı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --white:      #FFFFFF;
+  --bg:         #F5F6F8;
+  --surface:    #FFFFFF;
+  --border:     #E2E5EA;
+  --border-mid: #CDD1D8;
+  --navy:       #1B2A4A;
+  --navy-mid:   #2E4270;
+  --red:        #C0181A;
+  --red-light:  #F8E8E8;
+  --text:       #1A1E27;
+  --text-mid:   #4A5060;
+  --text-muted: #8A909E;
+  --serif:      'Source Serif 4', Georgia, serif;
+  --sans:       'Inter', system-ui, sans-serif;
+}
+
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--navy); }
+
+/* ── MASTHEAD ── */
+.masthead {
+  background: var(--navy);
+  color: #fff;
+  padding: 0 32px;
+}
+
+.masthead-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+}
+
+.masthead-brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.masthead-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.masthead-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.masthead-title {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.masthead-name {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.masthead-name em {
+  color: #FFFFFF;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.masthead-role {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
+
+.masthead-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.masthead-date {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: right;
+  line-height: 1.5;
+}
+
+/* ── NAV BAR ── */
+nav {
+  background: var(--surface);
+  border-bottom: 2px solid var(--navy);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(27,42,74,0.08);
+}
+
+.nav-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.nav-link {
+  display: block;
+  padding: 14px 18px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text-mid);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  user-select: none;
+  text-decoration: none;
+}
+
+.nav-link:hover { color: var(--navy); border-bottom-color: var(--navy-mid); }
+.nav-link.active { color: var(--red); border-bottom-color: var(--red); font-weight: 600; }
+
+.nav-search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.nav-search input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.78rem;
+  color: var(--text);
+  width: 180px;
+  font-family: var(--sans);
+}
+
+.nav-search input::placeholder { color: var(--text-muted); }
+.nav-search-icon { color: var(--text-muted); font-size: 0.9rem; }
+
+/* ── PAGE WRAP ── */
+.page-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 32px;
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  flex: 1;
+}
+
+/* ── SIDEBAR ── */
+aside {
+  width: 220px;
+  flex-shrink: 0;
+  padding: 28px 0;
+  position: sticky;
+  top: 50px;
+  max-height: calc(100vh - 50px);
+  overflow-y: auto;
+}
+
+.sidebar-block {
+  margin-bottom: 28px;
+}
+
+.sidebar-head {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0 7px 10px;
+  font-size: 0.8rem;
+  color: var(--text-mid);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 0.12s;
+  text-decoration: none;
+  gap: 6px;
+}
+
+.sidebar-item:hover {
+  color: var(--navy);
+  border-left-color: var(--navy);
+  background: linear-gradient(90deg, rgba(27,42,74,0.04), transparent);
+}
+
+.sidebar-item.active {
+  color: var(--red);
+  border-left-color: var(--red);
+  font-weight: 600;
+  background: linear-gradient(90deg, rgba(192,24,26,0.05), transparent);
+}
+
+.sidebar-item .s-icon { font-size: 0.75rem; flex-shrink: 0; opacity: 0.6; }
+.sidebar-item .s-label { flex: 1; }
+.sidebar-count {
+  font-size: 0.6rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.sidebar-item.active .sidebar-count {
+  background: var(--red-light);
+  border-color: rgba(192,24,26,0.2);
+  color: var(--red);
+}
+
+.sidebar-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+/* ── MAIN ── */
+main {
+  flex: 1;
+  min-width: 0;
+  padding: 28px 0;
+}
+
+/* ── HERO BANNER ── */
+.hero-banner {
+  background: var(--navy);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner::before {
+  content: '';
+  position: absolute;
+  right: -40px; top: -40px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(192,24,26,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.05);
+}
+
+.hero-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-text { flex: 1; }
+
+.hero-welcome {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 5px;
+}
+
+.hero-h1 {
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+.hero-h1 span { color: #C8D4E8; font-weight: 300; }
+
+.hero-desc {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+  max-width: 480px;
+  line-height: 1.65;
+}
+
+.hero-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.hero-stat {
+  text-align: right;
+  border-right: 2px solid rgba(192,24,26,0.5);
+  padding-right: 14px;
+}
+
+.hero-stat-val {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  font-family: var(--serif);
+}
+
+.hero-stat-lbl {
+  font-size: 0.58rem;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── QUICK ACCESS ── */
+.quick-strip {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.quick-card {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.quick-card:hover {
+  border-color: var(--navy);
+  box-shadow: 0 4px 14px rgba(27,42,74,0.09);
+  transform: translateY(-1px);
+}
+
+.quick-card-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.quick-card-body {}
+.quick-card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 2px;
+}
+
+.quick-card-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ── SECTION HEADER ── */
+.section-hdr {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
+.section-hdr-title {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.section-hdr-meta {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* ── FEATURED CARD ── */
+.card-featured {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px 22px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 4px solid var(--red);
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.card-featured:hover {
+  box-shadow: 0 4px 18px rgba(27,42,74,0.1);
+  transform: translateY(-1px);
+}
+
+.card-featured-icon {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.card-featured-body { flex: 1; }
+
+/* ── NEWS GRID ── */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+/* ── NEWS CARD ── */
+.news-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.news-card:hover {
+  border-color: var(--border-mid);
+  box-shadow: 0 4px 14px rgba(27,42,74,0.08);
+  transform: translateY(-1px);
+}
+
+/* CARD INTERNALS */
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-tag {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.tag-regulation { background: #E8F0FA; color: #2250A0; border: 1px solid #C4D3EF; }
+.tag-news       { background: #E8F5EE; color: #1A6E3A; border: 1px solid #B8DCC8; }
+.tag-alert      { background: var(--red-light); color: var(--red); border: 1px solid rgba(192,24,26,0.2); }
+.tag-education  { background: #F3EDF8; color: #6B2FA0; border: 1px solid #D9C7EC; }
+.tag-kkd        { background: #FEF6E4; color: #9A6200; border: 1px solid #F0D890; }
+
+.card-date {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.card-title {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+}
+
+.card-featured-body .card-title {
+  font-size: 1.08rem;
+}
+
+.card-excerpt {
+  font-size: 0.78rem;
+  color: var(--text-mid);
+  line-height: 1.65;
+  flex: 1;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+.card-source {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.card-source strong {
+  color: var(--text-mid);
+  font-weight: 600;
+}
+
+.card-read-more {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--red);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: gap 0.15s;
+}
+
+.news-card:hover .card-read-more,
+.card-featured:hover .card-read-more { gap: 8px; }
+
+/* ── NO RESULTS ── */
+#noResults {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10,15,28,0.55);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-width: 620px;
+  width: 92%;
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 32px 34px;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(10,15,28,0.18);
+}
+
+.modal-close {
+  position: absolute;
+  top: 18px; right: 18px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 30px; height: 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.modal-close:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+
+.modal-tag-wrap { margin-bottom: 12px; }
+
+.modal h2 {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.4;
+  padding-right: 40px;
+}
+
+.modal-date {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-body {
+  font-size: 0.85rem;
+  line-height: 1.8;
+  color: var(--text-mid);
+}
+
+.modal-body p { margin-bottom: 14px; }
+.modal-body strong { color: var(--text); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy);
+  color: rgba(255,255,255,0.5);
+  padding: 18px 32px;
+  margin-top: auto;
+}
+
+.footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-copy {
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+}
+
+.footer-copy strong { color: rgba(255,255,255,0.7); }
+.footer-links {
+  display: flex;
+  gap: 18px;
+}
+
+.footer-link {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.12s;
+}
+
+.footer-link:hover { color: rgba(255,255,255,0.7); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .page-wrap { padding: 0 18px; gap: 0; }
+  aside { display: none; }
+  .news-grid { grid-template-columns: 1fr; }
+  .card-featured { flex-direction: column; gap: 12px; }
+  .card-featured-icon { display: none; }
+  .hero-banner { flex-direction: column; text-align: center; }
+  .hero-stats { flex-direction: row; justify-content: center; }
+  .hero-stat { text-align: center; border-right: none; border-bottom: 2px solid rgba(192,24,26,0.4); padding-right: 0; padding-bottom: 10px; }
+  .quick-strip { flex-direction: column; }
+  .masthead-right { display: none; }
+  .nav-inner { overflow-x: auto; gap: 0; }
+  .nav-search { display: none; }
+}
+
+/* ── SKELETON LOADER ── */
+@keyframes shimmer { to { background-position: -200% center; } }
+.skel-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.skel-line {
+  height: 9px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+}
+</style>
+</head>
+<body>
+
+<!-- ── MASTHEAD ── -->
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-brand">
+      <div class="masthead-logo">
+        <img src="logo.png" alt="Erdinç EKİCİ Logo">
+      </div>
+      <div class="masthead-title">
+        <div class="masthead-name">Erdinç <em>EKİCİ</em></div>
+        <div class="masthead-role">İş Güvenliği Uzmanı</div>
+      </div>
+    </div>
+    <div class="masthead-right">
+      <div class="masthead-date">
+        <div id="currentDate"></div>
+        <div style="margin-top:2px;">İSG Bilgi &amp; Haber Portalı</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-link active" onclick="filterByNav(this,'tumu')">Tüm İçerikler</a>
+    <a class="nav-link" onclick="filterByNav(this,'mevzuat')">Mevzuat</a>
+    <a class="nav-link" onclick="filterByNav(this,'yonetmelik')">Yönetmelikler</a>
+    <a class="nav-link" onclick="filterByNav(this,'kkd')">KKD</a>
+    <a class="nav-link" onclick="filterByNav(this,'egitim')">Eğitim</a>
+    <a class="nav-link" onclick="filterByNav(this,'risk')">Risk Analizi</a>
+    <div class="nav-search">
+      <span class="nav-search-icon">⌕</span>
+      <input type="text" placeholder="Haber veya konu ara…" oninput="searchCards(this.value)">
+    </div>
+  </div>
+</nav>
+
+<!-- ── CONTENT ── -->
+<div class="page-wrap">
+
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="sidebar-block">
+      <div class="sidebar-head">Kategoriler</div>
+      <a class="sidebar-item active" onclick="filterBySide(this,'tumu')">
+        <span class="s-icon">⊞</span>
+        <span class="s-label">Tüm İçerikler</span>
+      </a>
+      <a class="sidebar-item" onclick="filterBySide(this,'haber')">
+        <span class="s-icon">◈</span>
+        <span class="s-label">Güncel Haberler</span>
+        <span class="sidebar-count">8</span>
+      </a>
+      <a class="sidebar-item" onclick="filterBySide(this,'mevzuat')">
+        <span class="s-icon">§</span>
+        <span class="s-label">Mevzuat</span>
+        <span class="sidebar-count">3</span>
+      </a>
+      <a class="sidebar-item" onclick="filterBySide(this,'yonetmelik')">
+        <span class="s-icon">▣</span>
+        <span class="s-label">Yönetmelikler</span>
+        <span class="sidebar-count">2</span>
+      </a>
+      <a class="sidebar-item" onclick="filterBySide(this,'risk')">
+        <span class="s-icon">◉</span>
+        <span class="s-label">Risk Analizi</span>
+        <span class="sidebar-count">2</span>
+      </a>
+      <a class="sidebar-item" onclick="filterBySide(this,'kkd')">
+        <span class="s-icon">⬡</span>
+        <span class="s-label">KKD Rehberi</span>
+        <span class="sidebar-count">2</span>
+      </a>
+      <a class="sidebar-item" onclick="filterBySide(this,'egitim')">
+        <span class="s-icon">◷</span>
+        <span class="s-label">Eğitim Materyalleri</span>
+        <span class="sidebar-count">2</span>
+      </a>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-head">Hızlı Araçlar</div>
+      <a class="sidebar-item" onclick="openModal('risk')">
+        <span class="s-icon">◉</span>
+        <span class="s-label">Risk Değerlendirme</span>
+      </a>
+      <a class="sidebar-item" onclick="openModal('kkd')">
+        <span class="s-icon">⬡</span>
+        <span class="s-label">KKD Seçim Kılavuzu</span>
+      </a>
+      <a class="sidebar-item" onclick="openModal('acil')">
+        <span class="s-icon">⚡</span>
+        <span class="s-label">Acil Durum Planı</span>
+      </a>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-head">Resmî Kaynaklar</div>
+      <a class="sidebar-item" href="https://www.resmigazete.gov.tr" target="_blank">
+        <span class="s-icon">↗</span>
+        <span class="s-label">Resmî Gazete</span>
+      </a>
+      <a class="sidebar-item" href="https://www.csgb.gov.tr" target="_blank">
+        <span class="s-icon">↗</span>
+        <span class="s-label">ÇSGB</span>
+      </a>
+      <a class="sidebar-item" href="https://www.sgk.gov.tr" target="_blank">
+        <span class="s-icon">↗</span>
+        <span class="s-label">SGK</span>
+      </a>
+      <a class="sidebar-item" href="https://www.isggm.gov.tr" target="_blank">
+        <span class="s-icon">↗</span>
+        <span class="s-label">İSGGM</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- Hero -->
+    <div class="hero-banner">
+      <div class="hero-logo">
+        <img src="logo.png" alt="Erdinç EKİCİ Logo">
+      </div>
+      <div class="hero-text">
+        <div class="hero-welcome">Hoş Geldiniz</div>
+        <div class="hero-h1">İSG Bilgi <span>&amp; Haber Portalı</span></div>
+        <div class="hero-desc">Mevzuat güncellemeleri, yönetmelik değişiklikleri, risk analizi rehberleri ve KKD standartları — tek, güvenilir kaynakta.</div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-val">34</div>
+          <div class="hero-stat-lbl">Yönetmelik</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">847</div>
+          <div class="hero-stat-lbl">Mevzuat Maddesi</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick access -->
+    <div class="quick-strip">
+      <div class="quick-card" onclick="openModal('risk')">
+        <div class="quick-card-icon">◉</div>
+        <div class="quick-card-body">
+          <div class="quick-card-title">Risk Değerlendirme Formu</div>
+          <div class="quick-card-desc">5×5 Matris yöntemi ile adım adım risk analizi</div>
+        </div>
+      </div>
+      <div class="quick-card" onclick="openModal('kkd')">
+        <div class="quick-card-icon">⬡</div>
+        <div class="quick-card-body">
+          <div class="quick-card-title">KKD Seçim Kılavuzu</div>
+          <div class="quick-card-desc">Kategoriye göre standart ve maruziyet rehberi</div>
+        </div>
+      </div>
+      <div class="quick-card" onclick="openModal('acil')">
+        <div class="quick-card-icon">⚡</div>
+        <div class="quick-card-body">
+          <div class="quick-card-title">Acil Durum Eylem Planı</div>
+          <div class="quick-card-desc">6331 sayılı Kanun kapsamında zorunlu unsurlar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- News -->
+    <div class="section-hdr">
+      <div class="section-hdr-title">Güncel İSG Haberleri</div>
+      <div class="section-hdr-meta" id="resultCount">8 haber</div>
+    </div>
+
+    <!-- Featured (rendered by JS) -->
+    <div id="featuredWrap"></div>
+
+    <!-- Grid (rendered by JS) -->
+    <div class="news-grid" id="newsGrid"></div>
+
+    <div id="newsStatus" style="display:none;text-align:center;padding:40px;color:var(--text-muted);font-size:0.82rem;background:var(--surface);border:1px dashed var(--border);border-radius:6px;"></div>
+
+    <div id="noResults" style="display:none;">
+      <div style="font-size:1.5rem;margin-bottom:8px;">⌕</div>
+      Aramanızla eşleşen sonuç bulunamadı.
+    </div>
+
+  </main>
+</div><!-- /page-wrap -->
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-copy">
+      © 2025 <strong>Erdinç EKİCİ</strong> · İş Güvenliği Uzmanı · Tüm hakları saklıdır.
+    </div>
+    <div class="footer-links">
+      <a class="footer-link" href="https://www.resmigazete.gov.tr" target="_blank">Resmî Gazete</a>
+      <a class="footer-link" href="https://www.csgb.gov.tr" target="_blank">ÇSGB</a>
+      <a class="footer-link" href="https://www.sgk.gov.tr" target="_blank">SGK</a>
+      <a class="footer-link" href="https://www.isggm.gov.tr" target="_blank">İSGGM</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" onclick="document.getElementById('modalOverlay').classList.remove('open')">✕</button>
+    <div class="modal-tag-wrap"><span class="card-tag" id="modalTag"></span></div>
+    <h2 id="modalTitle"></h2>
+    <span class="modal-date" id="modalDate"></span>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// Date
+(function(){
+  const d = new Date();
+  const opts = { year:'numeric', month:'long', day:'numeric', weekday:'long' };
+  document.getElementById('currentDate').textContent =
+    d.toLocaleDateString('tr-TR', opts);
+})();
+
+// --- FILTER ---
+const allCards = () => [...document.querySelectorAll('.news-card, .card-featured')];
+
+function updateCount() {
+  const vis = allCards().filter(c => c.style.display !== 'none').length;
+  document.getElementById('resultCount').textContent = vis + ' haber';
+  document.getElementById('noResults').style.display = vis === 0 ? 'block' : 'none';
+}
+
+function filterCards(tag) {
+  allCards().forEach(c => {
+    const tags = c.dataset.tags || '';
+    c.style.display = (tag === 'tumu' || tags.includes(tag)) ? '' : 'none';
+  });
+  updateCount();
+}
+
+function filterByNav(el, tag) {
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  filterCards(tag);
+}
+
+function filterBySide(el, tag) {
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  filterCards(tag);
+}
+
+function searchCards(q) {
+  q = q.trim().toLowerCase();
+  allCards().forEach(c => {
+    c.style.display = (!q || c.textContent.toLowerCase().includes(q)) ? '' : 'none';
+  });
+  updateCount();
+}
+
+// --- STATIC MODALS (Risk / KKD / Acil) ---
+const quickData = {
+  risk: {
+    tagClass: 'tag-regulation', tag: 'Risk Analizi',
+    title: 'Risk Değerlendirme Formu — 5×5 Matris Yöntemi',
+    date: 'Güncellendi: Haziran 2025',
+    body: `<p>Risk değerlendirmesi; işyerinde var olan ya da dışarıdan gelebilecek tehlikelerin belirlenmesi, bu tehlikelerin riske dönüşmesine yol açan faktörlerin analiz edilerek derecelendirilmesi ve kontrol tedbirlerinin kararlaştırılması sürecidir.</p>
+<p><strong>Değerlendirme Adımları</strong><br>
+1. Tehlikelerin tanımlanması<br>
+2. Risk puanının hesaplanması (Olasılık × Şiddet)<br>
+3. Risk derecelendirilmesi (Düşük / Orta / Yüksek / Çok Yüksek)<br>
+4. Kontrol hiyerarşisine göre tedbir belirlenmesi<br>
+5. Kalıntı riskin yeniden değerlendirilmesi<br>
+6. Periyodik gözden geçirme</p>`
+  },
+  kkd: {
+    tagClass: 'tag-kkd', tag: 'KKD Rehberi',
+    title: 'KKD Seçim ve Kullanım Kılavuzu',
+    date: 'Güncellendi: Mayıs 2025',
+    body: `<p>Kişisel Koruyucu Donanımlar (KKD), toplu koruma önlemleri ve teknik tedbirler alındıktan sonra kalan kalıntı riske karşı kullanılır. Doğru KKD seçimi için önce maruziyet türü ve düzeyi belirlenmelidir.</p>
+<p><strong>KKD Kategorileri ve İlgili Standartlar</strong><br>
+• Baş koruma — EN 397<br>
+• Göz / Yüz koruma — EN 166<br>
+• İşitme koruma — EN 352<br>
+• Solunum koruma — EN 143, EN 149<br>
+• El / Kol koruma — EN 388, EN 374<br>
+• Ayak koruma — EN ISO 20345<br>
+• Düşmeye karşı koruma — EN 361, EN 358</p>`
+  },
+  acil: {
+    tagClass: 'tag-alert', tag: 'Acil Durum',
+    title: 'Acil Durum Eylem Planı — Zorunlu Unsurlar',
+    date: 'Güncellendi: Haziran 2025',
+    body: `<p>6331 sayılı İş Sağlığı ve Güvenliği Kanunu kapsamında tüm işyerleri acil durum eylem planı hazırlamak zorundadır. Plan; yangın, kimyasal sızıntı, deprem ve ilk yardım senaryolarını kapsamalıdır.</p>
+<p><strong>Planda Bulunması Zorunlu Unsurlar</strong><br>
+• Tahliye planı ve işaretli kaçış yolları<br>
+• Acil durum koordinatörünün atanması<br>
+• Toplanma noktasının belirlenmesi ve ilan edilmesi<br>
+• İletişim ağacı ve acil telefon numaraları<br>
+• İlk yardım malzemelerinin konumları<br>
+• Yılda en az 1 tatbikat yapılması (tutanakla belgelenmesi)</p>`
+  }
+};
+
+function openModal(key) {
+  const m = quickData[key];
+  if (!m) return;
+  document.getElementById('modalTag').className = 'card-tag ' + m.tagClass;
+  document.getElementById('modalTag').textContent = m.tag;
+  document.getElementById('modalTitle').textContent = m.title;
+  document.getElementById('modalDate').textContent = m.date;
+  document.getElementById('modalBody').innerHTML = m.body;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function escHtml(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openCardModal(card) {
+  const tagEl   = card.querySelector('.card-tag');
+  const title   = card.querySelector('.card-title')?.textContent  || '';
+  const date    = card.querySelector('.card-date')?.textContent   || '';
+  const excerpt = card.querySelector('.card-excerpt')?.textContent || '';
+  const icerik  = card.dataset.icerik || '';
+  document.getElementById('modalTag').className   = 'card-tag ' + (tagEl ? tagEl.className.split(' ').slice(1).join(' ') : '');
+  document.getElementById('modalTag').textContent = tagEl ? tagEl.textContent : '';
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalDate').textContent  = date;
+  document.getElementById('modalBody').innerHTML = icerik
+    ? '<p>' + icerik.split('\n').filter(Boolean).map(escHtml).join('</p><p>') + '</p>'
+    : '<p>' + escHtml(excerpt) + '</p>';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay'))
+    document.getElementById('modalOverlay').classList.remove('open');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('modalOverlay').classList.remove('open');
+});
+
+// --- GOOGLE SHEETS FETCH ---
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzA3uzxlB3cwmufBmDq6zabBDCIPpMeQ7aLAl-C9FvYOshBWOLe63NXE6X2RIjn-ND1/exec';
+
+const CAT_CONFIG = {
+  'mevzuat':    { cls: 'tag-regulation', label: 'Mevzuat',    tags: 'mevzuat' },
+  'yönetmelik': { cls: 'tag-regulation', label: 'Yönetmelik', tags: 'yonetmelik mevzuat' },
+  'yonetmelik': { cls: 'tag-regulation', label: 'Yönetmelik', tags: 'yonetmelik mevzuat' },
+  'haber':      { cls: 'tag-news',       label: 'Haber',      tags: 'haber' },
+  'güncel':     { cls: 'tag-news',       label: 'Haber',      tags: 'haber' },
+  'guncel':     { cls: 'tag-news',       label: 'Haber',      tags: 'haber' },
+  'uyarı':      { cls: 'tag-alert',      label: 'Uyarı',      tags: 'haber' },
+  'uyari':      { cls: 'tag-alert',      label: 'Uyarı',      tags: 'haber' },
+  'eğitim':     { cls: 'tag-education',  label: 'Eğitim',     tags: 'egitim' },
+  'egitim':     { cls: 'tag-education',  label: 'Eğitim',     tags: 'egitim' },
+  'kkd':        { cls: 'tag-kkd',        label: 'KKD',        tags: 'kkd' },
+  'risk':       { cls: 'tag-news',       label: 'Risk',       tags: 'risk' },
+};
+
+function normTR(s) {
+  return (s || '').toLowerCase()
+    .replace(/ı/g,'i').replace(/İ/g,'i')
+    .replace(/ğ/g,'g').replace(/Ğ/g,'g')
+    .replace(/ü/g,'u').replace(/Ü/g,'u')
+    .replace(/ş/g,'s').replace(/Ş/g,'s')
+    .replace(/ö/g,'o').replace(/Ö/g,'o')
+    .replace(/ç/g,'c').replace(/Ç/g,'c').trim();
+}
+
+function getCat(kat) {
+  const k = normTR(kat);
+  return CAT_CONFIG[k] || CAT_CONFIG[(kat || '').toLowerCase().trim()]
+    || { cls: 'tag-news', label: kat || 'Haber', tags: 'haber' };
+}
+
+function getField(row, ...keys) {
+  for (const key of keys) {
+    if (row[key] != null && String(row[key]).trim() !== '') return String(row[key]);
+    const nk = normTR(key);
+    for (const [rk, rv] of Object.entries(row)) {
+      if (normTR(rk) === nk && rv != null && String(rv).trim() !== '') return String(rv);
+    }
+  }
+  return '';
+}
+
+function normalizeData(raw) {
+  if (Array.isArray(raw)) {
+    if (raw.length > 0 && Array.isArray(raw[0])) {
+      const hdrs = raw[0];
+      return raw.slice(1).map(row => Object.fromEntries(hdrs.map((h, i) => [h, row[i] ?? ''])));
+    }
+    return raw;
+  }
+  return raw?.data || raw?.values || raw?.rows || [];
+}
+
+function makeSkelCard(featured) {
+  const el = document.createElement('div');
+  el.className = 'skel-block';
+  el.style.pointerEvents = 'none';
+  if (featured) {
+    el.style.padding = '20px 22px';
+    el.style.marginBottom = '14px';
+    el.style.borderLeft = '4px solid var(--border-mid)';
+  }
+  el.innerHTML = `
+    <div class="skel-line" style="width:30%;height:12px;"></div>
+    <div class="skel-line" style="width:75%;height:14px;margin-top:2px;"></div>
+    <div class="skel-line" style="width:100%;"></div>
+    <div class="skel-line" style="width:60%;"></div>`;
+  return el;
+}
+
+function makeFeaturedEl(row) {
+  const cat    = getCat(getField(row, 'kategori', 'Kategori', 'category'));
+  const title  = getField(row, 'baslik', 'başlık', 'Başlık', 'Baslik', 'title');
+  const date   = getField(row, 'tarih', 'Tarih', 'date');
+  const ozet   = getField(row, 'ozet', 'özet', 'Özet', 'Ozet', 'summary', 'excerpt');
+  const kaynak = getField(row, 'kaynak', 'Kaynak', 'source');
+  const icerik = getField(row, 'icerik', 'içerik', 'İçerik', 'Icerik', 'content', 'detay', 'Detay');
+  const el = document.createElement('div');
+  el.className = 'card-featured';
+  el.dataset.tags = cat.tags + ' haber';
+  el.dataset.icerik = icerik;
+  el.onclick = () => openCardModal(el);
+  el.innerHTML = `
+    <div class="card-featured-icon">📋</div>
+    <div class="card-featured-body">
+      <div class="card-meta">
+        <span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span>
+        <span class="card-date">${escHtml(date)}</span>
+      </div>
+      <div class="card-title">${escHtml(title)}</div>
+      <div class="card-excerpt">${escHtml(ozet)}</div>
+      <div class="card-footer">
+        <div class="card-source">${kaynak ? `<strong>Kaynak:</strong> ${escHtml(kaynak)}` : ''}</div>
+        <div class="card-read-more">Devamını Oku →</div>
+      </div>
+    </div>`;
+  return el;
+}
+
+function makeCardEl(row) {
+  const cat    = getCat(getField(row, 'kategori', 'Kategori', 'category'));
+  const title  = getField(row, 'baslik', 'başlık', 'Başlık', 'Baslik', 'title');
+  const date   = getField(row, 'tarih', 'Tarih', 'date');
+  const ozet   = getField(row, 'ozet', 'özet', 'Özet', 'Ozet', 'summary', 'excerpt');
+  const kaynak = getField(row, 'kaynak', 'Kaynak', 'source');
+  const icerik = getField(row, 'icerik', 'içerik', 'İçerik', 'Icerik', 'content', 'detay', 'Detay');
+  const el = document.createElement('div');
+  el.className = 'news-card';
+  el.dataset.tags = cat.tags + ' haber';
+  el.dataset.icerik = icerik;
+  el.onclick = () => openCardModal(el);
+  el.innerHTML = `
+    <div class="card-meta">
+      <span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span>
+      <span class="card-date">${escHtml(date)}</span>
+    </div>
+    <div class="card-title">${escHtml(title)}</div>
+    <div class="card-excerpt">${escHtml(ozet)}</div>
+    <div class="card-footer">
+      <div class="card-source">${kaynak ? `<strong>Kaynak:</strong> ${escHtml(kaynak)}` : ''}</div>
+      <div class="card-read-more">Oku →</div>
+    </div>`;
+  return el;
+}
+
+function updateSidebarCounts(rows) {
+  const counts = { mevzuat: 0, yonetmelik: 0, risk: 0, kkd: 0, egitim: 0 };
+  rows.forEach(row => {
+    const cat = getCat(getField(row, 'kategori', 'Kategori', 'category'));
+    cat.tags.split(' ').forEach(t => { if (t in counts) counts[t]++; });
+  });
+  document.querySelectorAll('.sidebar-item').forEach(item => {
+    const m = (item.getAttribute('onclick') || '').match(/filterBySide\(this,'(\w+)'\)/);
+    if (!m) return;
+    const countEl = item.querySelector('.sidebar-count');
+    if (!countEl) return;
+    const tag = m[1];
+    if (tag === 'haber' || tag === 'tumu') countEl.textContent = rows.length;
+    else if (tag in counts) countEl.textContent = counts[tag];
+  });
+}
+
+async function fetchNews() {
+  const featuredWrap = document.getElementById('featuredWrap');
+  const newsGrid     = document.getElementById('newsGrid');
+  const statusDiv    = document.getElementById('newsStatus');
+  const countEl      = document.getElementById('resultCount');
+
+  featuredWrap.innerHTML = '';
+  newsGrid.innerHTML = '';
+  featuredWrap.appendChild(makeSkelCard(true));
+  for (let i = 0; i < 4; i++) newsGrid.appendChild(makeSkelCard(false));
+  countEl.textContent = 'Yükleniyor…';
+  statusDiv.style.display = 'none';
+
+  try {
+    const res = await fetch(SCRIPT_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rows = normalizeData(await res.json());
+
+    featuredWrap.innerHTML = '';
+    newsGrid.innerHTML = '';
+
+    if (!rows.length) {
+      statusDiv.innerHTML = '<div style="font-size:1.5rem;margin-bottom:8px;">📭</div>Henüz haber eklenmemiş.';
+      statusDiv.style.display = 'block';
+      countEl.textContent = '0 haber';
+      return;
+    }
+
+    featuredWrap.appendChild(makeFeaturedEl(rows[0]));
+    rows.slice(1).forEach(row => newsGrid.appendChild(makeCardEl(row)));
+    updateSidebarCounts(rows);
+    updateCount();
+  } catch (err) {
+    featuredWrap.innerHTML = '';
+    newsGrid.innerHTML = '';
+    statusDiv.innerHTML = `<div style="font-size:1.5rem;margin-bottom:8px;">⚠</div>Haberler yüklenemedi — sayfayı yenileyin.<br><small style="font-size:0.65rem;color:var(--text-muted);margin-top:4px;display:block;">${escHtml(err.message)}</small>`;
+    statusDiv.style.display = 'block';
+    countEl.textContent = '—';
+  }
+}
+
+fetchNews();
+</script>
+</body>
+</html>
