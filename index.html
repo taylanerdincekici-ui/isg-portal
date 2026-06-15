@@ -1035,7 +1035,7 @@ function showView(view, navEl, sideEl){
 
   // Carousel yalnızca haber panelinde göster
   const cw=document.getElementById('carouselWrap');
-  if(cw) cw.style.display=(view==='tumu'||view==='haber')?'':'none';
+  if(cw) cw.style.display=(view==='tumu'||view==='haber')?'block':'none';
 
   // Search input sıfırla
   if(view!=='tumu'&&view!=='haber'){
@@ -1046,7 +1046,7 @@ function showView(view, navEl, sideEl){
 
 function showPanel(id){
   const el=document.getElementById(id);
-  if(el) el.style.display='';
+  if(el) el.style.display='block';
 }
 
 // ── FİLTRELEME ──
