@@ -1156,6 +1156,12 @@ function parseDate(str){
   return isNaN(d)?new Date(0):d;
 }
 
+function extractLink(icerik){
+  if(!icerik) return '';
+  const m=icerik.match(/OR[İI]J[İI]NAL\s+[İI]Ç[EE]R[İI]K\s+L[İI]NK[İI]:\s*(https?:\/\/\S+)/i);
+  return m?m[1].trim():'';
+}
+
 // ── DURUM ──
 let allRows=[], currentFilter='tumu', currentSearch='';
 
@@ -1267,11 +1273,16 @@ function makeFeaturedEl(row){
   const ozet=getField(row,'ozet','özet','Özet','Ozet','summary','excerpt');
   const kaynak=getField(row,'kaynak','Kaynak','source');
   const icerik=getField(row,'icerik','içerik','İçerik','Icerik','content','detay','Detay');
+  const link=extractLink(icerik);
   const el=document.createElement('div');
   el.className='card-featured';
   el.dataset.tags=cat.tags+' haber';
   el.dataset.icerik=icerik;
-  el.onclick=()=>openCardModal(el);
+  el.onclick=()=>{
+    trackEvent('haber_acildi',title);
+    if(link) window.open(link,'_blank','noopener');
+    else openCardModal(el);
+  };
   el.innerHTML=`<div class="card-featured-icon">📋</div>
     <div class="card-featured-body">
       <div class="card-meta"><span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span><span class="card-date">${escHtml(date)}</span></div>
@@ -1279,7 +1290,7 @@ function makeFeaturedEl(row){
       <div class="card-excerpt">${escHtml(ozet)}</div>
       <div class="card-footer">
         <div class="card-source">${kaynak?`<strong>Kaynak:</strong> ${escHtml(kaynak)}`:''}</div>
-        <div class="card-read-more">Devamını Oku →</div>
+        <div class="card-read-more">${link?'↗ Habere Git':'Devamını Oku →'}</div>
       </div>
     </div>`;
   return el;
@@ -1292,17 +1303,22 @@ function makeCardEl(row){
   const ozet=getField(row,'ozet','özet','Özet','Ozet','summary','excerpt');
   const kaynak=getField(row,'kaynak','Kaynak','source');
   const icerik=getField(row,'icerik','içerik','İçerik','Icerik','content','detay','Detay');
+  const link=extractLink(icerik);
   const el=document.createElement('div');
   el.className='news-card';
   el.dataset.tags=cat.tags+' haber';
   el.dataset.icerik=icerik;
-  el.onclick=()=>openCardModal(el);
+  el.onclick=()=>{
+    trackEvent('haber_acildi',title);
+    if(link) window.open(link,'_blank','noopener');
+    else openCardModal(el);
+  };
   el.innerHTML=`<div class="card-meta"><span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span><span class="card-date">${escHtml(date)}</span></div>
     <div class="card-title">${escHtml(title)}</div>
     <div class="card-excerpt">${escHtml(ozet)}</div>
     <div class="card-footer">
       <div class="card-source">${kaynak?`<strong>Kaynak:</strong> ${escHtml(kaynak)}`:''}</div>
-      <div class="card-read-more">Oku →</div>
+      <div class="card-read-more">${link?'↗ Habere Git':'Oku →'}</div>
     </div>`;
   return el;
 }
@@ -1387,18 +1403,20 @@ function resetCTimer(){
 
 function openCarouselModal(idx){
   const row=cRows[idx];if(!row) return;
-  const cat=getCat(getField(row,'kategori','Kategori','category'));
   const title=getField(row,'baslik','başlık','Başlık','Baslik','title');
+  const icerik=getField(row,'icerik','içerik','İçerik','Icerik','content','detay','Detay');
+  const link=extractLink(icerik);
+  trackEvent('haber_acildi',title);
+  if(link){window.open(link,'_blank','noopener');return;}
+  const cat=getCat(getField(row,'kategori','Kategori','category'));
   const date=getField(row,'tarih','Tarih','date');
   const ozet=getField(row,'ozet','özet','Özet','Ozet','summary','excerpt');
-  const icerik=getField(row,'icerik','içerik','İçerik','Icerik','content','detay','Detay');
   document.getElementById('modalTag').className='card-tag '+cat.cls;
   document.getElementById('modalTag').textContent=cat.label;
   document.getElementById('modalTitle').textContent=title;
   document.getElementById('modalDate').textContent=date;
   document.getElementById('modalBody').innerHTML=buildModalBody(icerik,ozet);
   document.getElementById('modalOverlay').classList.add('open');
-  trackEvent('haber_acildi', title);
 }
 
 // ── MODAL YARDIMCILARI ──
@@ -1551,6 +1569,22 @@ async function fetchNews(){
       parseDate(getField(b,'tarih','Tarih','date'))-
       parseDate(getField(a,'tarih','Tarih','date'))
     );
+
+    // Başlık bazlı mükerrer haber filtresi
+    const seenT=new Set();
+    allRows=allRows.filter(r=>{
+      const t=normTR(getField(r,'baslik','başlık','Başlık','Baslik','title')).replace(/\W/g,'').slice(0,60);
+      if(!t||seenT.has(t)) return false;
+      seenT.add(t);return true;
+    });
+
+    // Yerel belediye eğitim/kkd haberlerini filtrele
+    allRows=allRows.filter(r=>{
+      const t=normTR(getField(r,'baslik','başlık','Başlık','Baslik','title'));
+      const isLocalGov=(t.includes('buyuksehir')||t.includes('belediye'));
+      const isLocalCtx=(t.includes('egitim')||t.includes('kkd')||t.includes('kurs')||t.includes('seminer'));
+      return !(isLocalGov&&isLocalCtx);
+    });
 
     // Carousel başlat
     initCarousel(allRows);
