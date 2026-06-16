@@ -254,6 +254,12 @@ footer{background:var(--navy);color:rgba(255,255,255,.5);padding:18px 32px;margi
 #noResults,#newsStatus{text-align:center;padding:40px;color:var(--text-muted);font-size:.82rem;background:var(--surface);border:1px dashed var(--border);border-radius:6px}
 #noResults{display:none}#newsStatus{display:none}
 
+/* ── SON DAKIKA GRİD ── */
+.sd-grid{grid-template-columns:repeat(3,1fr)}
+.sd-card{text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px}
+@media(max-width:1100px){.sd-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.sd-grid{grid-template-columns:1fr}}
+
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
   .page-wrap{padding:0 18px;gap:0}
@@ -432,7 +438,23 @@ footer{background:var(--navy);color:rgba(255,255,255,.5);padding:18px 32px;margi
     <!-- ═══════════════════════════════════════════════════ -->
     <div class="content-panel" id="panel-news">
 
-      <!-- Carousel -->
+      <!-- Son Dakika Haberleri -->
+      <div id="sonDakikaSection" style="margin-bottom:28px">
+        <div class="section-hdr" style="border-bottom-color:var(--red);border-bottom-width:2px">
+          <div class="section-hdr-title" style="display:flex;align-items:center;gap:8px">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;animation:pulse 1.8s ease-in-out infinite;flex-shrink:0"></span>
+            Son Dakika Haberleri
+          </div>
+          <div class="section-hdr-meta" id="sdResultCount">Yükleniyor…</div>
+        </div>
+        <div class="news-grid sd-grid" id="sonDakikaGrid"></div>
+        <div id="sonDakikaStatus" style="display:none;text-align:center;padding:28px;color:var(--text-muted);font-size:.82rem;background:var(--surface);border:1px dashed var(--border);border-radius:6px"></div>
+      </div>
+
+      <!-- İSG Son Haberler Carousel -->
+      <div class="section-hdr" style="margin-bottom:12px">
+        <div class="section-hdr-title">İSG Son Haberler</div>
+      </div>
       <div class="carousel-wrap" id="carouselWrap">
         <div id="carouselTrack"></div>
         <div class="carousel-nav-wrap">
@@ -1038,23 +1060,14 @@ footer{background:var(--navy);color:rgba(255,255,255,.5);padding:18px 32px;margi
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-inner" style="flex-direction:column;gap:14px;align-items:stretch">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-      <div class="footer-copy">© 2025 <strong>Erdinç EKİCİ</strong> · İş Güvenliği Uzmanı · Tüm hakları saklıdır.</div>
-      <div class="footer-links">
-        <a class="footer-link" href="https://www.resmigazete.gov.tr" target="_blank">Resmî Gazete</a>
-        <a class="footer-link" href="https://www.csgb.gov.tr" target="_blank">ÇSGB</a>
-        <a class="footer-link" href="https://www.sgk.gov.tr" target="_blank">SGK</a>
-        <a class="footer-link" href="https://www.csgb.gov.tr/isggm/" target="_blank">İSGGM</a>
-        <a class="footer-link" onclick="showView('yasal',null,document.getElementById('sb-yasal'))" style="cursor:pointer">Yasal Uyarı</a>
-      </div>
-    </div>
-    <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-      <div style="font-size:.7rem;color:rgba(255,255,255,.35)">
-        <strong style="color:rgba(255,255,255,.6)">Erdinç EKİCİ</strong> &nbsp;·&nbsp; İş Güvenliği Uzmanı &nbsp;·&nbsp;
-        <a href="mailto:igu.ekici@gmail.com" style="color:rgba(255,255,255,.4);text-decoration:none;transition:color .12s" onmouseover="this.style.color='rgba(255,255,255,.7)'" onmouseout="this.style.color='rgba(255,255,255,.4)'">igu.ekici@gmail.com</a>
-      </div>
-      <div style="font-size:.65rem;color:rgba(255,255,255,.25)">Bu portal bilgilendirme amaçlıdır — profesyonel İSG danışmanlığı yerine geçmez.</div>
+  <div class="footer-inner">
+    <div class="footer-copy">© 2025 <strong>Erdinç EKİCİ</strong> · İş Güvenliği Uzmanı · <a href="mailto:igu.ekici@gmail.com" style="color:rgba(255,255,255,.5);text-decoration:none">igu.ekici@gmail.com</a> · Tüm hakları saklıdır.</div>
+    <div class="footer-links">
+      <a class="footer-link" href="https://www.resmigazete.gov.tr" target="_blank">Resmî Gazete</a>
+      <a class="footer-link" href="https://www.csgb.gov.tr" target="_blank">ÇSGB</a>
+      <a class="footer-link" href="https://www.sgk.gov.tr" target="_blank">SGK</a>
+      <a class="footer-link" href="https://www.csgb.gov.tr/isggm/" target="_blank">İSGGM</a>
+      <a class="footer-link" onclick="showView('yasal',null,document.getElementById('sb-yasal'))" style="cursor:pointer">Yasal Uyarı</a>
     </div>
   </div>
 </footer>
@@ -1537,8 +1550,93 @@ async function fetchNews(){
   }
 }
 
+// ── SON DAKIKA HABERLERİ ──
+const SD_URL = SCRIPT_URL + '?type=sondakika';
+
+const SD_CAT_COLORS = {
+  'Gündem':       {bg:'#E8F0FA',color:'#2250A0',border:'#C4D3EF'},
+  'Dünya':        {bg:'#E8F5EE',color:'#1A6E3A',border:'#B8DCC8'},
+  'Ekonomi':      {bg:'#FEF6E4',color:'#9A6200',border:'#F0D890'},
+  'Spor':         {bg:'#F3EDF8',color:'#6B2FA0',border:'#D9C7EC'},
+  'Teknoloji':    {bg:'#E8F5EE',color:'#1A6E3A',border:'#B8DCC8'},
+  'Sağlık':       {bg:'#F8E8E8',color:'#C0181A',border:'rgba(192,24,26,.2)'},
+  'Bilim':        {bg:'#E8F0FA',color:'#2250A0',border:'#C4D3EF'},
+  'Kültür-Sanat': {bg:'#FFF3CD',color:'#856404',border:'#FFE082'}
+};
+
+function makeSonDakikaCard(row){
+  const title  = getField(row,'baslik','başlık','Başlık','Baslik','title');
+  const date   = getField(row,'tarih','Tarih','date');
+  const ozet   = getField(row,'ozet','özet','Özet','Ozet','summary','excerpt');
+  const kaynak = getField(row,'kaynak','Kaynak','source');
+  const link   = getField(row,'link','Link','url');
+  const kat    = getField(row,'kategori','Kategori','category');
+  const colors = SD_CAT_COLORS[kat]||{bg:'#E8F0FA',color:'#2250A0',border:'#C4D3EF'};
+  const exc    = (ozet||'').slice(0,110)+((ozet||'').length>110?'…':'');
+
+  const el = document.createElement('a');
+  el.className='news-card sd-card';
+  el.href=link||'#';
+  if(link){el.target='_blank';el.rel='noopener';}
+  el.innerHTML=`
+    <div class="card-meta">
+      <span class="card-tag" style="background:${colors.bg};color:${colors.color};border:1px solid ${colors.border}">${escHtml(kat||'Haber')}</span>
+      <span class="card-date">${escHtml(date)}</span>
+    </div>
+    <div class="card-title">${escHtml(title)}</div>
+    <div class="card-excerpt">${escHtml(exc)}</div>
+    <div class="card-footer">
+      <div class="card-source">${kaynak?`<strong>Kaynak:</strong> ${escHtml(kaynak)}`:''}</div>
+      <div class="card-read-more">↗ Oku</div>
+    </div>`;
+  return el;
+}
+
+async function fetchSonDakika(){
+  const grid   = document.getElementById('sonDakikaGrid');
+  const status = document.getElementById('sonDakikaStatus');
+  const rc     = document.getElementById('sdResultCount');
+  if(!grid) return;
+
+  grid.innerHTML='';
+  for(let i=0;i<6;i++) grid.appendChild(makeSkel(false));
+  rc.textContent='Yükleniyor…';
+  status.style.display='none';
+
+  try{
+    const res=await fetch(SD_URL);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    let sdRows=normalizeData(await res.json());
+
+    sdRows.sort((a,b)=>
+      parseDate(getField(b,'tarih','Tarih','date'))-
+      parseDate(getField(a,'tarih','Tarih','date'))
+    );
+
+    const top30=sdRows.slice(0,30);
+    grid.innerHTML='';
+
+    if(!top30.length){
+      status.innerHTML='<div style="font-size:1.2rem;margin-bottom:6px">⌛</div>Haberler henüz yüklenmedi. Apps Script\'te <strong>fetchAndSaveGeneralNews()</strong> fonksiyonunu bir kez çalıştırın.';
+      status.style.display='block';
+      rc.textContent='—';
+      return;
+    }
+
+    top30.forEach(r=>grid.appendChild(makeSonDakikaCard(r)));
+    rc.textContent=top30.length+' haber';
+
+  }catch(err){
+    grid.innerHTML='';
+    status.innerHTML=`<div style="font-size:1.2rem;margin-bottom:6px">⚠</div>Son dakika haberleri yüklenemedi.<br><small style="font-size:.65rem;color:var(--text-muted)">${escHtml(err.message)}</small>`;
+    status.style.display='block';
+    rc.textContent='—';
+  }
+}
+
 // İlk yükleme
 fetchNews();
+fetchSonDakika();
 </script>
 </body>
 </html>
