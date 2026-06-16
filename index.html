@@ -1214,6 +1214,8 @@ function showView(view, navEl, sideEl){
     const si=document.getElementById('searchInput');
     if(si){si.value='';currentSearch='';}
   }
+
+  trackEvent('panel', view);
 }
 
 function showPanel(id){
@@ -1236,10 +1238,15 @@ function applyFilters(){
   renderCards(allRows.filter(r=>matchFilter(r,currentFilter)&&matchSearch(r,currentSearch)));
 }
 
+let _searchTimer=null;
 function searchCards(q){
   currentSearch=q.trim().toLowerCase();
   if(activeView!=='tumu'&&activeView!=='haber') return;
   applyFilters();
+  clearTimeout(_searchTimer);
+  if(currentSearch.length>=3){
+    _searchTimer=setTimeout(()=>trackEvent('arama',currentSearch),1500);
+  }
 }
 
 // ── SKELETON ──
@@ -1391,6 +1398,7 @@ function openCarouselModal(idx){
   document.getElementById('modalDate').textContent=date;
   document.getElementById('modalBody').innerHTML=buildModalBody(icerik,ozet);
   document.getElementById('modalOverlay').classList.add('open');
+  trackEvent('haber_acildi', title);
 }
 
 // ── MODAL YARDIMCILARI ──
@@ -1411,16 +1419,23 @@ function buildModalBody(icerik,ozet){
   const sn=nm?nm[1].trim():'';
   const sl=lm?lm[1].trim():'';
 
-  // Anlamlı paragrafları filtrele (60 karakterden uzun satırlar)
-  const paras=mainText.split('\n').map(l=>l.trim()).filter(l=>l.length>60);
+  // Anlamlı paragrafları filtrele (30 karakterden uzun satırlar)
+  const paras=mainText.split('\n').map(l=>l.trim()).filter(l=>l.length>30);
+
+  // Özet ile birebir aynı olan tek paragrafı içerik sayma
+  const hasRealContent = paras.length > 1 || (paras.length === 1 && paras[0] !== (ozet||'').trim());
 
   let html='';
-  if(paras.length>0){
+  if(hasRealContent){
     html=paras.map(l=>`<p>${escHtml(l)}</p>`).join('');
-  } else {
-    // Gerçek içerik yok — özet göster ve yönlendir
+  }
+  // Her durumda özeti göster (içerik yoksa veya içerik özetten farklı değilse)
+  if(!hasRealContent){
     if(ozet) html=`<p>${escHtml(ozet)}</p>`;
-    if(sl) html+=`<p style="font-size:.78rem;color:var(--text-muted);margin-top:8px;padding:10px 12px;background:var(--bg);border-radius:4px;border-left:3px solid var(--border-mid)">Haber metnine bu sayfada doğrudan erişilemiyor. Orijinal haberi okumak için aşağıdaki bağlantıyı kullanabilirsiniz.</p>`;
+  }
+  // Orijinal link varsa her zaman göster
+  if(sl && !hasRealContent){
+    html+=`<div style="margin-top:10px;padding:10px 14px;background:var(--bg);border-radius:4px;border-left:3px solid var(--border-mid);font-size:.78rem;color:var(--text-muted)">Haberin tam metni bu portalda gösterilemiyor — orijinal sayfaya gitmek için aşağıdaki butonu kullanın.</div>`;
   }
 
   if(sn||sl){
@@ -1440,6 +1455,7 @@ function openCardModal(card){
   const date=card.querySelector('.card-date')?.textContent||'';
   const excerpt=card.querySelector('.card-excerpt')?.textContent||'';
   const icerik=card.dataset.icerik||'';
+  trackEvent('haber_acildi', title);
   document.getElementById('modalTag').className='card-tag '+(tagEl?tagEl.className.split(' ').slice(1).join(' '):'');
   document.getElementById('modalTag').textContent=tagEl?tagEl.textContent:'';
   document.getElementById('modalTitle').textContent=title;
@@ -1550,6 +1566,20 @@ async function fetchNews(){
   }
 }
 
+// ── ANALİTİK ──
+const _SID=(()=>{let s=sessionStorage.getItem('_isg_s');if(!s){s=Math.random().toString(36).substr(2,8).toUpperCase();sessionStorage.setItem('_isg_s',s);}return s;})();
+const _DEV=/mobile|android|iphone|ipad/i.test(navigator.userAgent)?'Mobil':/tablet/i.test(navigator.userAgent)?'Tablet':'Masaüstü';
+
+function trackEvent(olay,detay){
+  try{
+    const p=new URLSearchParams({action:'track',evt:olay,lbl:(detay||'').slice(0,120),sid:_SID,cihaz:_DEV});
+    fetch(SCRIPT_URL+'?'+p.toString(),{mode:'no-cors'}).catch(()=>{});
+  }catch(e){}
+}
+
+// İlk sayfa ziyareti
+trackEvent('ziyaret','');
+
 // ── SON DAKIKA HABERLERİ ──
 const SD_URL = SCRIPT_URL + '?type=sondakika';
 
@@ -1578,6 +1608,7 @@ function makeSonDakikaCard(row){
   el.className='news-card sd-card';
   el.href=link||'#';
   if(link){el.target='_blank';el.rel='noopener';}
+  el.addEventListener('click',()=>trackEvent('sondakika_tiklandi',title));
   el.innerHTML=`
     <div class="card-meta">
       <span class="card-tag" style="background:${colors.bg};color:${colors.color};border:1px solid ${colors.border}">${escHtml(kat||'Haber')}</span>
