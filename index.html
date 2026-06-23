@@ -1148,12 +1148,31 @@ function escHtml(s){
   return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── TARİH AYRIŞTIRMA (sıralama için) ──
 function parseDate(str){
   if(!str) return new Date(0);
-  const m=str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+  // dd.MM.yyyy HH:mm formatı
+  let m=str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})[ T]?(\d{1,2}):(\d{2})/);
+  if(m) return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5]);
+  // dd.MM.yyyy formatı (saat yok)
+  m=str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
   if(m) return new Date(+m[3],+m[2]-1,+m[1]);
   const d=new Date(str);
   return isNaN(d)?new Date(0):d;
+}
+
+// ── TARİH GÖRÜNTÜLEME (GG.AA.YYYY / SS:DD formatı) ──
+function formatDisplayDate(str){
+  if(!str) return '';
+  const d = parseDate(str);
+  if(!d || isNaN(d.getTime()) || d.getTime()===0) return str; // ayrıştırılamazsa orijinali göster
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const min = String(d.getMinutes()).padStart(2,'0');
+  // Eğer orijinal string saat bilgisi içermiyorsa (sadece tarih), 00:00 göster
+  return `${dd}.${mm}.${yyyy} / ${hh}:${min}`;
 }
 
 function extractLink(icerik){
@@ -1285,7 +1304,7 @@ function makeFeaturedEl(row){
   };
   el.innerHTML=`<div class="card-featured-icon">📋</div>
     <div class="card-featured-body">
-      <div class="card-meta"><span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span><span class="card-date">${escHtml(date)}</span></div>
+      <div class="card-meta"><span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span><span class="card-date">${escHtml(formatDisplayDate(date))}</span></div>
       <div class="card-title">${escHtml(title)}</div>
       <div class="card-excerpt">${escHtml(ozet)}</div>
       <div class="card-footer">
@@ -1313,7 +1332,7 @@ function makeCardEl(row){
     if(link) window.open(link,'_blank','noopener');
     else openCardModal(el);
   };
-  el.innerHTML=`<div class="card-meta"><span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span><span class="card-date">${escHtml(date)}</span></div>
+  el.innerHTML=`<div class="card-meta"><span class="card-tag ${cat.cls}">${escHtml(cat.label)}</span><span class="card-date">${escHtml(formatDisplayDate(date))}</span></div>
     <div class="card-title">${escHtml(title)}</div>
     <div class="card-excerpt">${escHtml(ozet)}</div>
     <div class="card-footer">
@@ -1367,7 +1386,7 @@ function initCarousel(rows){
       <div class="carousel-kicker"><span class="carousel-dot-live"></span>${escHtml(cat.label)} — Son Haberler</div>
       <div class="carousel-title" onclick="openCarouselModal(${i})">${escHtml(title)}</div>
       <div class="carousel-excerpt">${escHtml(exc)}</div>
-      <div class="carousel-meta"><span>${escHtml(date)}</span>${kaynak?`<span>· ${escHtml(kaynak)}</span>`:''}</div>
+      <div class="carousel-meta"><span>${escHtml(formatDisplayDate(date))}</span>${kaynak?`<span>· ${escHtml(kaynak)}</span>`:''}</div>
       <div class="carousel-cta" onclick="openCarouselModal(${i})">Haberi Oku →</div>`;
     track.appendChild(slide);
 
@@ -1414,7 +1433,7 @@ function openCarouselModal(idx){
   document.getElementById('modalTag').className='card-tag '+cat.cls;
   document.getElementById('modalTag').textContent=cat.label;
   document.getElementById('modalTitle').textContent=title;
-  document.getElementById('modalDate').textContent=date;
+  document.getElementById('modalDate').textContent=formatDisplayDate(date);
   document.getElementById('modalBody').innerHTML=buildModalBody(icerik,ozet);
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -1607,7 +1626,9 @@ const _DEV=/mobile|android|iphone|ipad/i.test(navigator.userAgent)?'Mobil':/tabl
 function trackEvent(olay,detay){
   try{
     const p=new URLSearchParams({action:'track',evt:olay,lbl:(detay||'').slice(0,120),sid:_SID,cihaz:_DEV});
-    fetch(SCRIPT_URL+'?'+p.toString(),{mode:'no-cors'}).catch(()=>{});
+    // NOT: mode 'no-cors' KULLANILMIYOR — Apps Script GET isteklerine kendi CORS başlığını ekliyor.
+    // 'no-cors' kullanmak tarayıcının isteği bazı durumlarda net::ERR_ABORTED ile iptal etmesine yol açıyordu.
+    fetch(SCRIPT_URL+'?'+p.toString()).catch(()=>{});
   }catch(e){}
 }
 
@@ -1646,7 +1667,7 @@ function makeSonDakikaCard(row){
   el.innerHTML=`
     <div class="card-meta">
       <span class="card-tag" style="background:${colors.bg};color:${colors.color};border:1px solid ${colors.border}">${escHtml(kat||'Haber')}</span>
-      <span class="card-date">${escHtml(date)}</span>
+      <span class="card-date">${escHtml(formatDisplayDate(date))}</span>
     </div>
     <div class="card-title">${escHtml(title)}</div>
     <div class="card-excerpt">${escHtml(exc)}</div>
